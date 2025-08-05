@@ -79,6 +79,10 @@ public class GameManager : MonoBehaviour
             case GameplayState gameplay:
                 gameplay.Dependencies(gameplayEntity, playerEntity);
                 break;
+
+            case ResultsState results:
+                results.Dependencies(gameplayEntity);
+                break;
         }
     }
 }

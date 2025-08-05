@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemyMovementSystem : MonoBehaviour
@@ -11,7 +12,15 @@ public class EnemyMovementSystem : MonoBehaviour
     private int direction = 1;
     private Coroutine movementCoroutine;
 
+    private Dictionary<Transform, Vector3> initialPositions = new();
+
     public void SetSpeed(float speed) => currentSpeed = speed;
+
+    public void CacheInitialPositions()
+    {
+        foreach (Transform enemy in enemiesContainer)
+            initialPositions[enemy] = enemy.localPosition;
+    }
 
     public void StartMovement()
     {
@@ -46,6 +55,19 @@ public class EnemyMovementSystem : MonoBehaviour
 
             yield return null;
         }
+    }
+
+    public void ResetPosition()
+    {
+        enemiesContainer.position = Vector3.zero;
+
+        foreach (var kvp in initialPositions)
+        {
+            if (kvp.Key != null)
+                kvp.Key.localPosition = kvp.Value;
+        }
+
+        direction = 1;
     }
 
     private void StepDown() => enemiesContainer.position += Vector3.down * stepDownAmount;

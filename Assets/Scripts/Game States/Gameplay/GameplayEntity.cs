@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 public class GameplayEntity
 {
@@ -29,6 +30,7 @@ public class GameplayEntity
 
     public void LevelWon()
     {
+        Debug.Log("GameWon");
         currentLevel++;
         OnLevelWon?.Invoke();
     }

@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class GameplayController : ControllerBase
@@ -6,6 +7,8 @@ public class GameplayController : ControllerBase
     [SerializeField] private EnemyManager enemyManager;
     [SerializeField] private PlayerController playerPrefab;
     [SerializeField] private Transform playerSpawn;
+    [SerializeField] private int maxLevel = 10;
+
 
     private PlayerController player;
     private GameplayEntity gameplayEntity;
@@ -51,6 +54,7 @@ public class GameplayController : ControllerBase
         gameplayEntity.OnWarmingStart += ResetScore;
         gameplayEntity.OnWarmingStart += ResetLifes;
         gameplayEntity.OnGameStart += EnablePlayerActions;
+        gameplayEntity.OnLevelWon += NextLevel;
     }
 
     protected override void RemoveListeners()
@@ -60,6 +64,31 @@ public class GameplayController : ControllerBase
         gameplayEntity.OnWarmingStart -= ResetScore;
         gameplayEntity.OnWarmingStart -= ResetLifes;
         gameplayEntity.OnGameStart -= EnablePlayerActions;
+        gameplayEntity.OnLevelWon -= NextLevel;
+    }
+
+    private IEnumerator NextLevelRoutine()
+    {
+        DisablePlayerActions();
+        ResetPosition();
+
+        yield return new WaitForSeconds(1.5f);
+
+        enemyManager.Conclude();
+        enemyManager.Initialize();
+
+        EnablePlayerActions();
+    }
+
+    private void NextLevel()
+    {
+        if (gameplayEntity.CurrentLevel > maxLevel)
+        {
+            gameplayEntity.GameWon();
+            return;
+        }
+
+        StartCoroutine(NextLevelRoutine());
     }
 
     private void EnablePlayerActions() => player.EnableActions();

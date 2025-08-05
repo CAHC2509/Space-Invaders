@@ -1114,6 +1114,7 @@ MonoBehaviour:
   enemyManager: {fileID: 833702512}
   playerPrefab: {fileID: -7544505958605118418, guid: 85bbfe9282071774190267787137ce5f, type: 3}
   playerSpawn: {fileID: 8334485108455757851}
+  maxLevel: 1
 --- !u!1 &1860087677
 GameObject:
   m_ObjectHideFlags: 0
@@ -1203,7 +1204,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MatchCountdownInteraction
   countdownText: {fileID: 1942661796}
-  countdownDelay: 2
+  countdownDelay: 5
 --- !u!1 &1903479294
 GameObject:
   m_ObjectHideFlags: 0

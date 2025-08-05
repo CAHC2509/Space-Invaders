@@ -20,44 +20,27 @@ public class EnemyController : ControllerBase
     {
         gameplayEntity.OnWarmingStart += EnableEnemies;
         gameplayEntity.OnGameStart += StartLevel;
-        gameplayEntity.OnLevelWon += NextLevel;
+        gameplayEntity.OnLevelWon += OnLevelWonHandler;
         gameplayEntity.OnGameLost += Stop;
-        gameplayEntity.OnLevelLost += RestartLevel;
+        gameplayEntity.OnLevelLost += OnLevelLostHandler;
     }
 
     protected override void RemoveListeners()
     {
         gameplayEntity.OnWarmingStart -= EnableEnemies;
         gameplayEntity.OnGameStart -= StartLevel;
-        gameplayEntity.OnLevelWon -= NextLevel;
+        gameplayEntity.OnLevelWon -= OnLevelWonHandler;
         gameplayEntity.OnGameLost -= Stop;
-        gameplayEntity.OnLevelLost -= RestartLevel;
+        gameplayEntity.OnLevelLost -= OnLevelLostHandler;
     }
+
 
     private void StartLevel()
     {
         float speed = baseSpeed;
+        movementSystem.CacheInitialPositions();
         movementSystem.SetSpeed(speed);
         movementSystem.StartMovement();
-    }
-
-    private void NextLevel()
-    {
-        float speed = baseSpeed + gameplayEntity.CurrentLevel * speedIncreasePerLevel;
-        movementSystem.StopMovement();
-        movementSystem.SetSpeed(speed);
-        movementSystem.StartMovement();
-    }
-
-    private void RestartLevel()
-    {
-        EnableEnemies();
-        movementSystem.StopMovement();
-    }
-
-    private void Stop()
-    {
-        movementSystem.StopMovement();
     }
 
     private void EnableEnemies()
@@ -73,4 +56,23 @@ public class EnemyController : ControllerBase
                 registry.Register(enemyComponent);
         }
     }
+
+    private void RestartLevel(bool increaseSpeed)
+    {
+        movementSystem.StopMovement();
+        EnableEnemies();
+
+        float speed = baseSpeed;
+        if (increaseSpeed)
+            speed += speedIncreasePerLevel * (gameplayEntity.CurrentLevel - 1);
+
+        movementSystem.CacheInitialPositions();
+        movementSystem.SetSpeed(speed);
+        movementSystem.ResetPosition();
+        movementSystem.StartMovement();
+    }
+
+    private void Stop() => movementSystem.StopMovement();
+    private void OnLevelWonHandler() => RestartLevel(true);
+    private void OnLevelLostHandler() => RestartLevel(false);
 }
