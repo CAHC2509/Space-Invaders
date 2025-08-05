@@ -59,7 +59,8 @@ public class GameManager : MonoBehaviour
     {
         switch (gameState)
         {
-            default:
+            case MainState main:
+                main.Dependencies();
                 break;
         }
     }
