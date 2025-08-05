@@ -12,24 +12,33 @@ public class PlayerMovement : MonoBehaviour, IPlayerComponent
     {
         ActionEnabled = true;
         rb.gravityScale = 0f;
+
+        AddListeners();
     }
 
     public void Conclude()
     {
         ActionEnabled = false;
         rb.linearVelocity = Vector2.zero;
+
+        RemoveListeners();
     }
 
-    private void Update()
+    private void AddListeners()
+    {
+        PlayerInputReader.OnMovementInput += Move;
+    }
+
+    private void RemoveListeners()
+    {
+        PlayerInputReader.OnMovementInput -= Move;
+    }
+
+    private void Move(Vector2 movementInput)
     {
         if (!ActionEnabled) return;
 
-        Move();
-    }
-
-    private void Move()
-    {
-        rb.linearVelocityX = PlayerInputReader.MovementInput.x * movementSpeed * Time.deltaTime;
+        rb.linearVelocityX = movementInput.x * movementSpeed * Time.deltaTime;
 
         if (transform.position.x > distanceLimit || transform.position.x < -distanceLimit)
         {
