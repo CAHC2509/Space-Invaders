@@ -11,6 +11,7 @@ public class EnemyController : ControllerBase
 
     private float currentSpeed;
     private int direction = 1;
+    private int aliveEnemiesCount;
     private Coroutine movementCoroutine;
     private GameplayEntity gameplayEntity;
 
@@ -70,7 +71,15 @@ public class EnemyController : ControllerBase
             StopCoroutine(movementCoroutine);
             movementCoroutine = null;
         }
+
+        foreach (Transform enemy in enemiesContainer)
+        {
+            Enemy enemyComponent = enemy.GetComponent<Enemy>();
+            if (enemyComponent != null)
+                enemyComponent.OnDestroyed -= OnEnemyDestroyed;
+        }
     }
+
 
     private IEnumerator MoveEnemies()
     {
@@ -94,8 +103,34 @@ public class EnemyController : ControllerBase
 
     private void EnableEnemies()
     {
+        aliveEnemiesCount = 0;
+
         foreach (Transform enemy in enemiesContainer)
-            enemy.gameObject.SetActive(true);
+        {
+            if (!enemy.gameObject.activeSelf)
+                enemy.gameObject.SetActive(true);
+
+            Enemy enemyComponent = enemy.GetComponent<Enemy>();
+            if (enemyComponent != null)
+            {
+                RegisterEnemy(enemyComponent);
+            }
+        }
+    }
+
+    public void RegisterEnemy(Enemy enemy)
+    {
+        aliveEnemiesCount++;
+        enemy.OnDestroyed -= OnEnemyDestroyed;
+        enemy.OnDestroyed += OnEnemyDestroyed;
+    }
+
+    private void OnEnemyDestroyed(Enemy enemy)
+    {
+        aliveEnemiesCount--;
+
+        if (aliveEnemiesCount <= 0)
+            gameplayEntity.LevelWon();
     }
 
     private void StepDown()
