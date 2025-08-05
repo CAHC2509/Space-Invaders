@@ -62,6 +62,10 @@ public class GameManager : MonoBehaviour
             case MainState main:
                 main.Dependencies();
                 break;
+
+            case OnboardingState onboarding:
+                onboarding.Dependencies();
+                break;
         }
     }
 }
