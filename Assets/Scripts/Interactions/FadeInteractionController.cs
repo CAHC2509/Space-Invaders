@@ -20,6 +20,8 @@ public class FadeInteractionController : InteractionBaseController
         color.a = initialValue;
         fadeImage.color = color;
 
+        fadeImage.gameObject.SetActive(true);
+
         float currentDuration = 0f;
 
         while (currentDuration < fadeDuration)
@@ -33,5 +35,6 @@ public class FadeInteractionController : InteractionBaseController
 
         color.a = finalValue;
         fadeImage.color = color;
+        fadeImage.gameObject.SetActive(false);
     }
 }

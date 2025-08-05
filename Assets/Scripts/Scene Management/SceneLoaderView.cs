@@ -9,11 +9,16 @@ public class SceneLoaderView : ViewBase
 
     public override void Initialize()
     {
+        base.Initialize();
         SetProgress(0f);
         DisableView();
     }
 
-    public override void Conclude() => DisableView();
+    public override void Conclude()
+    {
+        base.Conclude();
+        DisableView();
+    }
 
     public void SetProgress(float progress)
     {

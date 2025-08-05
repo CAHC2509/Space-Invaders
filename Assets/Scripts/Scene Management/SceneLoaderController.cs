@@ -20,12 +20,14 @@ public class SceneLoaderController : ControllerBase
     {
         base.Initialize();
         view.Initialize();
+        fadeController.Initialize();
     }
 
     public override void Conclude()
     {
         base.Conclude();
         view.Conclude();
+        fadeController.Conclude();
     }
 
     protected override void AddListeners()
@@ -84,8 +86,6 @@ public class SceneLoaderController : ControllerBase
     {
         if (loadedSceneHandles.TryGetValue(sceneName, out var handle))
         {
-            fadeController.BeginInteraction();
-
             handle.Result.ActivateAsync().completed += (asyncOp) =>
             {
                 handle.Result.ActivateAsync().completed += _ => SceneManager.SetActiveScene(handle.Result.Scene);
