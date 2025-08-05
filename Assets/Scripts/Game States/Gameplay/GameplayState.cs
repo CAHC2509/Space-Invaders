@@ -3,10 +3,6 @@ using UnityEngine;
 
 public class GameplayState : GameStateBase
 {
-    [SerializeField] private GameObject playerPrefab;
-    [SerializeField] private Transform playerSpawn;
-
-    [Space, Header("External references")]
     [SerializeField] private MatchCountdownInteraction countdownInteraction;
     [SerializeField] private GameplayController controller;
     [SerializeField] private GameplayView view;
