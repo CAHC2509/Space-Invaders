@@ -228,7 +228,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   rb: {fileID: -2747050447023061172}
   movementSpeed: 550
-  distanceLimit: 8
+  distanceLimit: 9
 --- !u!114 &2898922741438740849
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -242,7 +242,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerShoot
   firePoint: {fileID: 8623123748614310057}
-  fireRate: 1
+  fireRate: 0.5
 --- !u!1 &7768975284538630791
 GameObject:
   m_ObjectHideFlags: 0

@@ -3,6 +3,7 @@ using UnityEngine;
 public class GameplayController : ControllerBase
 {
     [SerializeField] private BulletPool bulletPool;
+    [SerializeField] private EnemyManager enemyManager;
     [SerializeField] private PlayerController playerPrefab;
     [SerializeField] private Transform playerSpawn;
 
@@ -21,12 +22,15 @@ public class GameplayController : ControllerBase
             player = instantiatedObject.GetComponent<PlayerController>();
             player.Dependencies(playerEntity, bulletPool);
         }
+
+        enemyManager.Dependencies(gameplayEntity);
     }
 
     public override void Initialize()
     {
         base.Initialize();
 
+        enemyManager.Initialize();
         player.Initialize();
         bulletPool.Initialize();
     }
@@ -35,6 +39,7 @@ public class GameplayController : ControllerBase
     {
         base.Conclude();
 
+        enemyManager.Conclude();
         player.Conclude();
         bulletPool.Conclude();
     }
