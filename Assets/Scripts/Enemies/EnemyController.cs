@@ -1,140 +1,76 @@
-using System.Collections;
 using UnityEngine;
 
 public class EnemyController : ControllerBase
 {
+    [SerializeField] private EnemyMovementSystem movementSystem;
+    [SerializeField] private EnemyRegistry registry;
     [SerializeField] private Transform enemiesContainer;
     [SerializeField] private float baseSpeed = 2f;
     [SerializeField] private float speedIncreasePerLevel = 0.25f;
-    [SerializeField] private float stepDownAmount = 0.5f;
-    [SerializeField] private float distanceLimit = 10f;
 
-    private float currentSpeed;
-    private int direction = 1;
-    private int aliveEnemiesCount;
-    private Coroutine movementCoroutine;
     private GameplayEntity gameplayEntity;
 
     public void Dependencies(GameplayEntity gameplayEntity)
     {
         this.gameplayEntity = gameplayEntity;
-        currentSpeed = baseSpeed;
+        registry.Dependencies(gameplayEntity);
     }
 
     protected override void AddListeners()
     {
         gameplayEntity.OnWarmingStart += EnableEnemies;
-        gameplayEntity.OnGameStart += OnGameStart;
-        gameplayEntity.OnGameLost += StopMovement;
-        gameplayEntity.OnLevelWon += OnLevelWon;
-        gameplayEntity.OnLevelLost += OnLevelLost;
+        gameplayEntity.OnGameStart += StartLevel;
+        gameplayEntity.OnLevelWon += NextLevel;
+        gameplayEntity.OnGameLost += Stop;
+        gameplayEntity.OnLevelLost += RestartLevel;
     }
 
     protected override void RemoveListeners()
     {
         gameplayEntity.OnWarmingStart -= EnableEnemies;
-        gameplayEntity.OnGameStart -= OnGameStart;
-        gameplayEntity.OnGameLost -= StopMovement;
-        gameplayEntity.OnLevelWon -= OnLevelWon;
-        gameplayEntity.OnLevelLost -= OnLevelLost;
+        gameplayEntity.OnGameStart -= StartLevel;
+        gameplayEntity.OnLevelWon -= NextLevel;
+        gameplayEntity.OnGameLost -= Stop;
+        gameplayEntity.OnLevelLost -= RestartLevel;
     }
 
-    private void OnGameStart()
+    private void StartLevel()
     {
-        currentSpeed = baseSpeed;
-        StartMovement();
+        float speed = baseSpeed;
+        movementSystem.SetSpeed(speed);
+        movementSystem.StartMovement();
     }
 
-    private void OnLevelWon()
+    private void NextLevel()
     {
-        currentSpeed = baseSpeed + speedIncreasePerLevel * gameplayEntity.CurrentLevel;
-        StopMovement();
-        StartMovement();
+        float speed = baseSpeed + gameplayEntity.CurrentLevel * speedIncreasePerLevel;
+        movementSystem.StopMovement();
+        movementSystem.SetSpeed(speed);
+        movementSystem.StartMovement();
     }
 
-    private void OnLevelLost()
+    private void RestartLevel()
     {
         EnableEnemies();
-        StopMovement();
+        movementSystem.StopMovement();
     }
 
-    private void StartMovement()
+    private void Stop()
     {
-        if (movementCoroutine == null)
-            movementCoroutine = StartCoroutine(MoveEnemies());
-    }
-
-    private void StopMovement()
-    {
-        if (movementCoroutine != null)
-        {
-            StopCoroutine(movementCoroutine);
-            movementCoroutine = null;
-        }
-
-        foreach (Transform enemy in enemiesContainer)
-        {
-            Enemy enemyComponent = enemy.GetComponent<Enemy>();
-            if (enemyComponent != null)
-                enemyComponent.OnDestroyed -= OnEnemyDestroyed;
-        }
-    }
-
-
-    private IEnumerator MoveEnemies()
-    {
-        while (true)
-        {
-            enemiesContainer.position += Vector3.right * direction * currentSpeed * Time.deltaTime;
-
-            foreach (Transform enemy in enemiesContainer)
-            {
-                if (Mathf.Abs(enemy.position.x) >= distanceLimit)
-                {
-                    StepDown();
-                    direction *= -1;
-                    break;
-                }
-            }
-
-            yield return null;
-        }
+        movementSystem.StopMovement();
     }
 
     private void EnableEnemies()
     {
-        aliveEnemiesCount = 0;
+        registry.Reset();
 
         foreach (Transform enemy in enemiesContainer)
         {
             if (!enemy.gameObject.activeSelf)
                 enemy.gameObject.SetActive(true);
 
-            Enemy enemyComponent = enemy.GetComponent<Enemy>();
-            if (enemyComponent != null)
-            {
-                RegisterEnemy(enemyComponent);
-            }
+            if (enemy.TryGetComponent(out Enemy enemyComponent))
+                registry.Register(enemyComponent);
         }
-    }
-
-    public void RegisterEnemy(Enemy enemy)
-    {
-        aliveEnemiesCount++;
-        enemy.OnDestroyed -= OnEnemyDestroyed;
-        enemy.OnDestroyed += OnEnemyDestroyed;
-    }
-
-    private void OnEnemyDestroyed(Enemy enemy)
-    {
-        aliveEnemiesCount--;
-
-        if (aliveEnemiesCount <= 0)
-            gameplayEntity.LevelWon();
-    }
-
-    private void StepDown()
-    {
-        enemiesContainer.position += Vector3.down * stepDownAmount;
     }
 }
