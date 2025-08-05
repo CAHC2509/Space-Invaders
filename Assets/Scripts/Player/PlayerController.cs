@@ -2,13 +2,16 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    [SerializeField] private PlayerShoot playerShoot;
+
     private IPlayerComponent[] playerComponents;
     private PlayerEntity playerEntity;
 
-    public void Dependencies(PlayerEntity playerEntity)
+    public void Dependencies(PlayerEntity playerEntity, BulletPool bulletPool)
     {
         this.playerEntity = playerEntity;
         playerComponents = GetComponents<IPlayerComponent>();
+        playerShoot.Dependencies(bulletPool);
     }
 
     public void Initialize()

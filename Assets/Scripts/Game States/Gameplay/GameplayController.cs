@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class GameplayController : ControllerBase
 {
+    [SerializeField] private BulletPool bulletPool;
     [SerializeField] private PlayerController playerPrefab;
     [SerializeField] private Transform playerSpawn;
 
@@ -18,7 +19,7 @@ public class GameplayController : ControllerBase
         {
             GameObject instantiatedObject = Instantiate(playerPrefab.gameObject, playerSpawn.position, playerSpawn.rotation);
             player = instantiatedObject.GetComponent<PlayerController>();
-            player.Dependencies(playerEntity);
+            player.Dependencies(playerEntity, bulletPool);
         }
     }
 
@@ -27,6 +28,7 @@ public class GameplayController : ControllerBase
         base.Initialize();
 
         player.Initialize();
+        bulletPool.Initialize();
     }
 
     public override void Conclude()
@@ -34,6 +36,7 @@ public class GameplayController : ControllerBase
         base.Conclude();
 
         player.Conclude();
+        bulletPool.Conclude();
     }
 
     protected override void AddListeners()
@@ -53,7 +56,6 @@ public class GameplayController : ControllerBase
         gameplayEntity.OnWarmingStart -= ResetLifes;
         gameplayEntity.OnGameStart -= EnablePlayerActions;
     }
-
 
     private void EnablePlayerActions() => player.EnableActions();
     private void DisablePlayerActions() => player.DisableActions();
